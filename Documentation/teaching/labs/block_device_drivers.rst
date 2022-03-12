@@ -31,7 +31,7 @@ performs all disk operations using blocks. Since the smallest unit of physical
 addressing is the sector, the size of the block must be a multiple of the size
 of the sector. Additionally, the block size must be a power of 2 and can not
 exceed the size of a page. The size of the block may vary depending on the file
-system used, the most common values being 512 bytes, 1 kilobytes and 4
+system used, the most common values being 512 bytes, 1 kilobyte and 4
 kilobytes.
 
 
@@ -356,14 +356,14 @@ The block device driver associates each queue with a handling function, which
 will be called for each request in the queue
 (the :c:type:`struct request` structure).
 
-In earlier version of the Linux kernel, each device driver had associated one or
+In an earlier version of the Linux kernel, each device driver had associated one or
 more request queues (:c:type:`struct request_queue`), where any client could add
 requests, while also being able to reorder them.
 The problem with this approach is that it requires a per-queue lock, making it
 inefficient in distributed systems.
 
 The `Multi-Queue Block Queing Mechanism <https://www.kernel.org/doc/html/latest/block/blk-mq.html>`_
-solves this issue by splitting the device driver queue in two parts:
+solves this issue by splitting the device driver queue into two parts:
  1. Software staging queues
  2. Hardware dispatch queues
 
@@ -371,8 +371,8 @@ Software staging queues
 -----------------------
 
 The staging queues hold requests from the clients before sending them to the
-block device driver. To prevent the waiting for a per-queue lock, a staging
-queue is allocated for each CPU or node. A software queue is associated to
+block device driver. To prevent waiting for a per-queue lock, a staging
+queue is allocated for each CPU or node. A software queue is associated with
 only one hardware queue.
 
 While in this queue, the requests can be merged or reordered, according to an
@@ -599,7 +599,7 @@ Process a request
 The central part of a block device driver is the request handling function
 (``queue_rq``). In previous examples, the function that fulfilled this role was
 :c:func:`my_block_request`. As stated in the
-`Create and delete a request queue`_ section, this function is associated to the
+`Create and delete a request queue`_ section, this function is associated with the
 driver when creating the tag set structure.
 
 This function is called when the kernel considers that the driver should process
@@ -616,7 +616,7 @@ in which the respective function is running should be made. Also, it should not
 be assumed that the buffer provided by a request is from kernel space or user
 space, any operation that accesses the userspace being erroneous.
 
-One of the simplest request handling function is presented below:
+One of the simplest request handling functions is presented below:
 
 .. code-block:: c
 
@@ -647,8 +647,8 @@ The :c:func:`my_block_request` function performs the following operations:
 
    * Get a pointer to the request structure from the ``bd`` argument and start
      its processing using the :c:func:`blk_mq_start_request` function.
-   * A block device can receive calls which do not transfer data blocks (e.g.
-     low level operations on the disk, instructions referring to special ways of
+   * A block device can receive calls that do not transfer data blocks (e.g.
+     low-level operations on the disk, instructions referring to special ways of
      accessing the device). Most drivers do not know how to handle these
      requests and return an error.
    * To return an error, :c:func:`blk_mq_end_request` function is called,
@@ -715,7 +715,7 @@ Two functions can be used to create a :c:type:`struct bio` structure:
      structure; the newly obtained structure is initialized with the values of
      the cloned structure fields; the buffers are shared with the
      :c:type:`struct bio` structure that has been cloned so that access to the
-     buffers has to be done carefully to avoid access to the same memory area
+     buffers have to be done carefully to avoid access to the same memory area
      from the two clones;
 
 Both functions return a new :c:type:`struct bio` structure.
@@ -783,7 +783,7 @@ In the code snippet above we specified the block device to which we sent the
 following: :c:type:`struct bio` structure, startup sector, operation
 (:c:data:`REQ_OP_READ` or :c:data:`REQ_OP_WRITE`) and content. The content of a
 :c:type:`struct bio` structure is a buffer described by: a physical page,
-the offset in the page and the size of the bufer. A page can be assigned using
+the offset in the page, and the size of the buffer. A page can be assigned using
 the :c:func:`alloc_page` call.
 
 .. note:: The :c:data:`size` field of the :c:func:`bio_add_page` call must be
